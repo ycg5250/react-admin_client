@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
 import {Link,withRouter} from "react-router-dom";
 import { Menu } from 'antd';
-import menuList from "../../config/menuConfig";
+import {connect} from "react-redux";
 
+import menuList from "../../config/menuConfig";
 import './index.less'
 import logo from '../../assets/images/logo.png'
-import memoryUtils from "../../utils/memoryUtils";
+import {setHeadTitle} from "../../redux/actions";
 
 const { SubMenu } = Menu;
 
@@ -47,9 +48,9 @@ class LeftNav extends Component {
   /* 判断当前登录用户对item是否有权限 */
   hasAuth = (item) => {
     const {key,isPublic} = item
-    const menus = memoryUtils.user.role.menus
-    const username = memoryUtils.user.username
-    console.log(username)
+    const menus = this.props.user.role.menus
+    const username = this.props.user.username
+    // console.log(username)
     if(username==='admin' || isPublic || menus.indexOf(key)!==-1){
       return true
     }else if(item.children){//如果当前用户有次item的某个item的权限
@@ -75,9 +76,14 @@ class LeftNav extends Component {
       if(this.hasAuth(item)){
         //向pre添加<Menu.Item>
         if (!item.children) {
+          // 判断item是否是当前对应的item
+          if(item.key===path || path.indexOf(item.key)===0){
+            //更新redux的状态
+            this.props.setHeadTitle(item.title)
+          }
           pre.push((
             <Menu.Item key={item.key} icon={<item.icon />}>
-              <Link to={item.key}>
+              <Link to={item.key} onClick={() => this.props.setHeadTitle(item.title)}>
                 {item.title}
               </Link>
             </Menu.Item>
@@ -127,6 +133,7 @@ class LeftNav extends Component {
           mode="inline"
           theme="dark"
           selectedKeys={[path]}
+          // selectedKeys={[this.props.headTitle]}
           defaultOpenKeys={[openKey]}
         >
           {
@@ -144,4 +151,7 @@ withRouter高阶组件
 包装非路由组件，返回一个新组建
 新的组件向非路由组件传递3个属性：history/location/match
 */
-export default withRouter(LeftNav)
+export default connect(
+  state => ({user:state.user}),
+  {setHeadTitle},
+)(withRouter(LeftNav))

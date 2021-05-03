@@ -40,7 +40,7 @@ export default class ProductAddUpdate extends Component {
 
     //如果是一个二级分类商品的更新
     const {isUpdate,product} = this
-    const {pCategoryId,categoryId} = product
+    const {pCategoryId} = product
     if(isUpdate && pCategoryId!=='0'){
       //获取对应的二级分类列表
       const subCategorys = await this.getCategorys(pCategoryId)
