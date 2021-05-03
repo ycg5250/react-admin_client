@@ -11,7 +11,7 @@ import {message} from "antd";
   axios('/login',{username,password},'POST')
 }*/
 // const BASE = 'http://localhost:5000'
-const BASE = ''
+const BASE = '/api'
 export const reqLogin = (username,password) => ajax(BASE+'/login',{username,password},'POST')
 
 export const reqAddUsers = (user) => ajax(BASE+'/manage/user/add',user,'POST')

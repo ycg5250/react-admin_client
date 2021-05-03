@@ -2,14 +2,14 @@ import React, {Component} from 'react'
 import {withRouter} from 'react-router-dom'
 import { Modal } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import {connect} from 'react-redux'
 
 import {reqWeather} from '../../api'
 import menuList from "../../config/menuConfig";
 import {formateDate} from '../../utils/dateUtils'
 import './index.less'
-import memoryUtils from "../../utils/memoryUtils";
-import storageUtils from "../../utils/storageUtils";
 import LinkButton from "../link-button";
+import {logout} from "../../redux/actions";
 
 
 class Header extends Component {
@@ -55,9 +55,10 @@ class Header extends Component {
       icon: <ExclamationCircleOutlined />,
       content: '確定退出吗',
       onOk:()=>{
-        storageUtils.removeUser()
+        /*storageUtils.removeUser()
         memoryUtils.user={}
-        this.props.history.replace('/login')
+        this.props.history.replace('/login')*/
+        this.props.logout()
       },
       okText: '确认',
       cancelText: '取消',
@@ -75,8 +76,10 @@ class Header extends Component {
 
   render() {
     const {currentTime,weather} = this.state
-    const username = memoryUtils.user.username
-    const title = this.getTitle()
+    const username = this.props.user.username
+    // const title = this.getTitle()
+    const title = this.props.headTitle
+    // console.log(this.props)
     return (
       <div className="header">
         <div className="header-top">
@@ -96,4 +99,7 @@ class Header extends Component {
   }
 }
 
-export default withRouter(Header)
+export default connect(
+  state => ({headTitle:state.headTitle,user:state.user}),
+  {logout},
+)(withRouter(Header))

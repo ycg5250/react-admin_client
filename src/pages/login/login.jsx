@@ -1,33 +1,19 @@
 import React, {Component} from 'react';
-import {Form, Input, Button, message} from 'antd';
+import {Form, Input, Button} from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import './login.less'
-import logo from '../../assets/images/logo.png'
-import {reqLogin} from '../../api/index'
-import memoryUtils from "../../utils/memoryUtils";
-import storageUtils from "../../utils/storageUtils";
+import {connect} from "react-redux";
 import {Redirect} from "react-router-dom";
 
-export default class Login extends Component {
+import './login.less'
+import logo from '../../assets/images/logo.png'
+import {login} from "../../redux/actions";
+
+
+class Login extends Component {
 
   onFinish = async (values) => {
-    console.log('发送ajax登陆请求', values)
-    const {username,password} = values
-    // 简化promise对象的使用，不再使用then()类指定成功/失败的回调函数
-    // 以同步编码方式(没有回调函数了)实现异步流程
-    const response = await reqLogin(username,password)
-    console.log('成功了',response.data)
-    // const result = response.data
-    if(response.status===0){
-      message.success('登陆成功')
-      const user = response.data
-      memoryUtils.user = user //保存在内存
-      storageUtils.saveUser(user)
-      //跳转到管理界面，不需要回退到登陆界面
-      this.props.history.replace('/')
-    }else {
-      message.error(response.msg)
-    }
+    const {username,password} =values
+    this.props.login(username,password)
   };
 
   //自定义验证规则
@@ -47,9 +33,9 @@ export default class Login extends Component {
 
   render() {
     //如果用户已经登陆，自动跳转到管理界面
-    const user = memoryUtils.user
+    const user = this.props.user
     if (user && user._id) {
-      return <Redirect to='/login'/>
+      return <Redirect to='/home'/>
     }
     return (
       <div className="login">
@@ -58,6 +44,7 @@ export default class Login extends Component {
           <h1>React项目：后台管理系统</h1>
         </header>
         <section className="login-content">
+          <div className={user.errorMsg ? 'error-msg show' : 'error-msg'}>{user.errorMsg}</div>
           <h2>用户登录</h2>
           <Form
             name="normal_login"
@@ -109,6 +96,12 @@ export default class Login extends Component {
     );
   }
 }
+
+
+export default connect(
+  state => ({user:state.user}),
+  {login}
+)(Login)
 
 /*
   前台验证
